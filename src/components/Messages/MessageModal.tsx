@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { X, Send, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../lib/supabase';
 
 type Listing = {
   id: string;
   title: string;
   profiles: {
-    id: string;
+    id?: string;
     username: string;
   };
 };
@@ -33,16 +32,7 @@ export default function MessageModal({ isOpen, onClose, listing }: MessageModalP
     setLoading(true);
     
     try {
-      const { error } = await supabase
-        .from('messages')
-        .insert({
-          sender_id: user.id,
-          receiver_id: listing.profiles.id,
-          listing_id: listing.id,
-          content: message.trim(),
-        });
-
-      if (error) throw error;
+      console.log('Sending message:', message);
 
       setSent(true);
       setTimeout(() => {

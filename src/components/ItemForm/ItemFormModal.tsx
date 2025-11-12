@@ -1,12 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload, Camera, MapPin, Calendar } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../lib/supabase';
 
 type ItemFormModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (itemData: any) => void;
 };
 
 const CATEGORIES = [
@@ -67,6 +66,7 @@ export default function ItemFormModal({ isOpen, onClose, onSubmit }: ItemFormMod
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!user) {
       setError('You must be signed in to create a listing');
       return;
@@ -77,46 +77,30 @@ export default function ItemFormModal({ isOpen, onClose, onSubmit }: ItemFormMod
       return;
     }
 
+    if (!formData.title || !formData.description || !formData.category || !formData.location || !formData.date) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      // Create the listing first
-      const { data: listing, error: listingError } = await supabase
-        .from('listings')
-        .insert({
-          user_id: user.id,
-          type: formData.type,
-          title: formData.title,
-          description: formData.description,
-          category: formData.category,
-          location: formData.location,
-          date_lost_or_found: formData.date,
-          is_valuable: formData.isValuable,
-        })
-        .select()
-        .single();
+      // Create item object with base64 images (LOCAL STORAGE SOLUTION)
+      const newItem = {
+        id: Date.now().toString(),
+        ...formData,
+        images: previews, // Use base64 previews directly
+        userId: user.id || 'demo-user',
+        userName: user.email || 'Anonymous',
+        createdAt: new Date().toISOString(),
+        status: 'active'
+      };
 
-      if (listingError) throw listingError;
+      console.log('Item saved to localStorage:', newItem);
 
-      // For demo purposes, we'll use placeholder URLs for images
-      // In a real app, you'd upload to Supabase Storage
-      for (let i = 0; i < images.length; i++) {
-        const placeholderUrl = `https://images.pexels.com/photos/416978/pexels-photo-416978.jpeg?auto=compress&cs=tinysrgb&w=400`;
-        
-        const { error: imageError } = await supabase
-          .from('listing_images')
-          .insert({
-            listing_id: listing.id,
-            image_url: placeholderUrl,
-            order_index: i,
-          });
-
-        if (imageError) throw imageError;
-      }
-
-      onSubmit();
-      onClose();
+      // Pass to parent
+      onSubmit(newItem);
       
       // Reset form
       setFormData({
@@ -130,6 +114,9 @@ export default function ItemFormModal({ isOpen, onClose, onSubmit }: ItemFormMod
       });
       setImages([]);
       setPreviews([]);
+      
+      onClose();
+      
     } catch (err: any) {
       setError(err.message || 'Failed to create listing');
     } finally {

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+// Replace your entire HeroPage.tsx with this:
+import { useState, useEffect } from 'react';
 import { Search, MapPin, MessageCircle, CheckCircle, Heart, Star, ArrowRight } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 
 type RecentListing = {
   id: string;
@@ -8,7 +8,8 @@ type RecentListing = {
   title: string;
   location: string;
   created_at: string;
-  listing_images: {
+  images?: string[];
+  listing_images?: {
     image_url: string;
   }[];
 };
@@ -16,6 +17,7 @@ type RecentListing = {
 type HeroPageProps = {
   onShowItemForm: () => void;
   onBrowseListings: () => void;
+  items?: any[];
 };
 
 const HOW_IT_WORKS_STEPS = [
@@ -54,35 +56,24 @@ const TESTIMONIALS = [
   },
 ];
 
-export default function HeroPage({ onShowItemForm, onBrowseListings }: HeroPageProps) {
+export default function HeroPage({ onShowItemForm, onBrowseListings, items = [] }: HeroPageProps) {
   const [recentListings, setRecentListings] = useState<RecentListing[]>([]);
 
   useEffect(() => {
-    fetchRecentListings();
-  }, []);
-
-  const fetchRecentListings = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('listings')
-        .select(`
-          id,
-          type,
-          title,
-          location,
-          created_at,
-          listing_images (image_url)
-        `)
-        .eq('status', 'open')
-        .order('created_at', { ascending: false })
-        .limit(6);
-
-      if (error) throw error;
-      setRecentListings(data || []);
-    } catch (error) {
-      console.error('Error fetching recent listings:', error);
+    if (items && items.length > 0) {
+      const convertedItems: RecentListing[] = items.slice(0, 6).map(item => ({
+        id: item.id,
+        type: item.type,
+        title: item.title,
+        location: item.location,
+        created_at: item.createdAt,
+        images: item.images
+      }));
+      setRecentListings(convertedItems);
+    } else {
+      setRecentListings([]);
     }
-  };
+  }, [items]);
 
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString);
@@ -95,6 +86,16 @@ export default function HeroPage({ onShowItemForm, onBrowseListings }: HeroPageP
     
     const diffInDays = Math.floor(diffInHours / 24);
     return `${diffInDays}d ago`;
+  };
+
+  const getImageUrl = (listing: RecentListing) => {
+    if (listing.images && listing.images.length > 0) {
+      return listing.images[0];
+    }
+    if (listing.listing_images && listing.listing_images.length > 0) {
+      return listing.listing_images[0].image_url;
+    }
+    return 'https://images.pexels.com/photos/416978/pexels-photo-416978.jpeg?auto=compress&cs=tinysrgb&w=400';
   };
 
   return (
@@ -114,13 +115,13 @@ export default function HeroPage({ onShowItemForm, onBrowseListings }: HeroPageP
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto mb-8">
               <button
-                onClick={() => onShowItemForm()}
+                onClick={onShowItemForm}
                 className="px-8 py-3 bg-red-500 text-white text-lg font-semibold rounded-lg hover:bg-red-600 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
               >
                 Report Lost Item
               </button>
               <button
-                onClick={() => onShowItemForm()}
+                onClick={onShowItemForm}
                 className="px-8 py-3 bg-green-500 text-white text-lg font-semibold rounded-lg hover:bg-green-600 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
               >
                 Report Found Item
@@ -159,8 +160,7 @@ export default function HeroPage({ onShowItemForm, onBrowseListings }: HeroPageP
                 >
                   <div className="relative">
                     <img
-                      src={listing.listing_images?.[0]?.image_url || 
-                        'https://images.pexels.com/photos/416978/pexels-photo-416978.jpeg?auto=compress&cs=tinysrgb&w=400'}
+                      src={getImageUrl(listing)}
                       alt={listing.title}
                       className="w-full h-40 object-cover"
                     />
@@ -191,7 +191,7 @@ export default function HeroPage({ onShowItemForm, onBrowseListings }: HeroPageP
         </div>
       </div>
 
-      {/* How It Works */}
+      {/* Rest of your HeroPage content remains the same */}
       <div className="bg-gray-50 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -221,7 +221,6 @@ export default function HeroPage({ onShowItemForm, onBrowseListings }: HeroPageP
         </div>
       </div>
 
-      {/* Testimonials */}
       <div className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -259,7 +258,6 @@ export default function HeroPage({ onShowItemForm, onBrowseListings }: HeroPageP
         </div>
       </div>
 
-      {/* CTA Section */}
       <div className="bg-blue-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
@@ -270,7 +268,7 @@ export default function HeroPage({ onShowItemForm, onBrowseListings }: HeroPageP
               Join thousands of community members helping reunite lost items with their owners
             </p>
             <button
-              onClick={() => onShowItemForm()}
+              onClick={onShowItemForm}
               className="px-8 py-3 bg-white text-blue-600 text-lg font-semibold rounded-lg hover:bg-gray-50 transition-colors shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
             >
               Get Started Today

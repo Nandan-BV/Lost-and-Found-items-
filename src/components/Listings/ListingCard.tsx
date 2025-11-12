@@ -1,5 +1,4 @@
-import React from 'react';
-import { MapPin, Calendar, User, Star, CheckCircle } from 'lucide-react';
+import { MapPin, Calendar, User, CheckCircle } from 'lucide-react';
 
 type Listing = {
   id: string;
@@ -12,6 +11,7 @@ type Listing = {
   is_valuable: boolean;
   created_at: string;
   profiles: {
+    id?: string;
     username: string;
     trust_score: number;
     successful_reunions: number;

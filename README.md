@@ -38,4 +38,3 @@ Notes
 - The frontend uses a small fetch-based client in `src/apiClient.ts` pointing to `http://localhost:5000/api`.
 - Supabase references have been removed; the app is self-contained locally.
 
-If you want I can add a dev script that clears and re-seeds the database for development.

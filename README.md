@@ -12,7 +12,7 @@ npm install
 cd server
 npm install
 ```
-
+If any issues found check the working directory by using pwd(command) and then chage it to project directory
 2. Start both frontend and backend in one command
 
 ```powershell
@@ -37,4 +37,5 @@ Notes
 
 - The frontend uses a small fetch-based client in `src/apiClient.ts` pointing to `http://localhost:5000/api`.
 - Supabase references have been removed; the app is self-contained locally.
+
 

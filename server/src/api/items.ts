@@ -11,7 +11,7 @@ const storage = multer.memoryStorage(); // Store in memory instead of disk
 const upload = multer({ 
   storage: storage,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB  is the limit to uploadd the file  
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|gif/;

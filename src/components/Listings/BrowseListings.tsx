@@ -1,4 +1,6 @@
+# this for the browselistings listing the items
 import { useState, useEffect } from 'react';
+
 import { Search } from 'lucide-react';
 
 type BrowseListingsProps = {

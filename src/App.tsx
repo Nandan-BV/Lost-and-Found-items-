@@ -1,4 +1,4 @@
-import { useState, useEffect } from 
+import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Header from './components/Layout/Header';

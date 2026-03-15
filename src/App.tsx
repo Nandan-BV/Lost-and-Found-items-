@@ -71,7 +71,7 @@ function App() {
           currentView={currentView}
         />
 
-        <main>
+        <
           <Routes>
             <Route 
               path="/" 
